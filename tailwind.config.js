@@ -1,6 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ["./src/**/*.{tsx,html}"],
-  darkMode: "media",
-  prefix: "plasmo-"
+  darkMode: "selector",
+  prefix: "",
+  plugins: [require("daisyui")]
 }
