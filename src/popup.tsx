@@ -1,20 +1,21 @@
 import logo from "data-base64:assets/logo.svg"
 import { useEffect, useState } from "react"
 import { localhost, scrollSepolia } from "src/chains"
-import { createPublicClient, getContract, http } from "viem"
+import { createPublicClient, getAddress, getContract, http } from "viem"
 
 import "~style.css"
 
 import { abi } from "~StaqeProtocol.json"
 import type { IMetadata, IPool } from "~types"
 
-localStorage.theme = "light"
-
 export const GATEWAY_URL = "https://ipfs.io/ipfs/"
 
 const transport = http()
 const batch = { multicall: true }
-const addresses = { 1337: "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82" }
+const addresses = {
+  1337: "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",
+  534351: "0x9cbD0A9D9fb8e8c1baA4687E4e8068aDA57a220f"
+}
 const publicClient = createPublicClient({ chain: localhost, batch, transport })
 
 const handleIPFSUrl = (url: string) => {
@@ -47,7 +48,9 @@ async function fetchMetadata(uri: string) {
 }
 
 function IndexPopup() {
-  const [account, setAccount] = useState<`0x${string}`>()
+  const [account, setAccount] = useState<`0x${string}`>(
+    "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+  )
   const [tempAccount, setTempAccount] = useState<`0x${string}`>()
 
   const [totalPools, setTotalPools] = useState<bigint>()
@@ -104,7 +107,7 @@ function IndexPopup() {
         const endId = isOverflow ? totalPools : page * perPage
 
         const contracts = []
-        for (let poolId = startId; poolId < endId; poolId++) {
+        for (let poolId = startId; poolId <= endId; poolId++) {
           contracts.push({
             address,
             abi,
@@ -112,6 +115,8 @@ function IndexPopup() {
             args: [account, poolId]
           })
         }
+
+        console.log("address2", address, totalPools, contracts)
 
         const poolList: { result: IPool }[] = await client.multicall({
           contracts
@@ -140,9 +145,11 @@ function IndexPopup() {
 
         setStakerPools(stakerPoolsWithMetadata)
 
+        console.log("poolList", poolList, account)
+
         const launchPools = poolList
           .map((pl, i) =>
-            pl?.result?.owner === account
+            getAddress(pl?.result?.owner) === getAddress(account)
               ? { id: (startId + BigInt(i)).toString(), ...pl?.result }
               : undefined
           )
@@ -266,9 +273,56 @@ function IndexPopup() {
               <div className="w-full">
                 <div className="flex justify-center items-center">
                   <div className="carousel carousel-center rounded-box w-full p-0">
-                    {(stakerPools === undefined || stakerPools.length <= 0) &&
-                      (launchPools === undefined ||
-                        launchPools.length <= 0) && (
+                    {tab === 1 &&
+                      (stakerPools !== undefined && stakerPools.length > 0 ? (
+                        stakerPools.map((pool, i) => (
+                          <div
+                            key={i}
+                            className="carousel-item w-60 h-40 rounded-lg shadow-md m-2 flex flex-col items-start justify-between relative overflow-hidden"
+                            style={{
+                              backgroundImage: pool?.metadata?.banner_image
+                                ? `url(${pool.metadata.banner_image})`
+                                : undefined,
+                              backgroundPosition: "center",
+                              backgroundSize: "cover",
+                              backgroundRepeat: "no-repeat"
+                            }}>
+                            <div
+                              className="absolute inset-0 bg-black/50"
+                              aria-hidden="true"></div>
+                            <a
+                              href={`http://localhost:3000/pool?id=${pool.id}`}
+                              target="_blank"
+                              className="absolute right-0 bottom-0 bg-slate-700/30 text-xs text-slate-200 rounded-tl-lg p-2 hover:bg-slate-700/60 hover:cursor-pointer">
+                              claim rewards
+                            </a>
+                            <div className="z-10 flex items-center gap-2 ml-1 mt-1">
+                              <div className="bg-slate-200/10 h-10 w-10 mask mask-hexagon-2">
+                                {pool?.metadata && (
+                                  <img
+                                    src={pool?.metadata?.image}
+                                    alt="Pool Image"
+                                    className="h-10 w-10 mask mask-hexagon-2"
+                                  />
+                                )}
+                              </div>
+                              <div className="text-xs text-slate-200">
+                                {pool?.metadata?.name ?? "NO NAME"}
+                              </div>
+                            </div>
+                            <div className="z-10">
+                              <div className="text-xs text-slate-200 pl-2 pb-2">
+                                <span className="text-slate-400 mr-2">
+                                  Rewards:
+                                </span>
+                                {pool.totalRewards
+                                  ? pool.totalRewards.toString()
+                                  : ``}
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
                         <div className="flex flex-col justify-center items-center w-full text-slate-500">
                           <svg
                             fill="none"
@@ -283,105 +337,70 @@ function IndexPopup() {
                           </svg>
                           <div>No Rewards</div>
                         </div>
-                      )}
-                    {tab === 1 &&
-                      stakerPools !== undefined &&
-                      stakerPools.length > 0 &&
-                      stakerPools.map((pool, i) => (
-                        <div
-                          key={i}
-                          className="carousel-item w-60 h-40 rounded-lg shadow-md m-2 flex flex-col items-start justify-between relative overflow-hidden"
-                          style={{
-                            backgroundImage: pool?.metadata?.banner_image
-                              ? `url(${pool.metadata.banner_image})`
-                              : undefined,
-                            backgroundPosition: "center",
-                            backgroundSize: "cover",
-                            backgroundRepeat: "no-repeat"
-                          }}>
-                          <div
-                            className="absolute inset-0 bg-black/50"
-                            aria-hidden="true"></div>
-                          <a
-                            href={`http://localhost:3000/pool?id=${pool.id}`}
-                            target="_blank"
-                            className="absolute right-0 bottom-0 bg-slate-700/30 text-xs text-slate-200 rounded-tl-lg p-2 hover:bg-slate-700/60 hover:cursor-pointer">
-                            claim rewards
-                          </a>
-                          <div className="z-10 flex items-center gap-2 ml-1 mt-1">
-                            <div className="bg-slate-200/10 h-10 w-10 mask mask-hexagon-2">
-                              {pool?.metadata && (
-                                <img
-                                  src={pool?.metadata?.image}
-                                  alt="Pool Image"
-                                  className="h-10 w-10 mask mask-hexagon-2"
-                                />
-                              )}
-                            </div>
-                            <div className="text-xs text-slate-200">
-                              {pool?.metadata?.name ?? "NO NAME"}
-                            </div>
-                          </div>
-                          <div className="z-10">
-                            <div className="text-xs text-slate-200 pl-2 pb-2">
-                              <span className="text-slate-400 mr-2">
-                                Rewards:
-                              </span>
-                              {pool.totalRewards
-                                ? pool.totalRewards.toString()
-                                : ``}
-                            </div>
-                          </div>
-                        </div>
                       ))}
                     {tab === 2 &&
-                      launchPools !== undefined &&
-                      launchPools.length > 0 &&
-                      launchPools.map((pool, i) => (
-                        <div
-                          key={i}
-                          className="carousel-item w-60 h-40 rounded-lg shadow-md m-2 flex flex-col items-start justify-between relative overflow-hidden"
-                          style={{
-                            backgroundImage: pool?.metadata?.banner_image
-                              ? `url(${pool.metadata.banner_image})`
-                              : undefined,
-                            backgroundPosition: "center",
-                            backgroundSize: "cover",
-                            backgroundRepeat: "no-repeat"
-                          }}>
+                      (launchPools !== undefined && launchPools.length > 0 ? (
+                        launchPools.map((pool, i) => (
                           <div
-                            className="absolute inset-0 bg-black/50"
-                            aria-hidden="true"></div>
-                          <a
-                            href={`http://localhost:3000/pool?id=${pool.id}`}
-                            target="_blank"
-                            className="absolute right-0 bottom-0 bg-slate-700/30 text-xs text-slate-200 rounded-tl-lg p-2 hover:bg-slate-700/60 hover:cursor-pointer">
-                            add rewards
-                          </a>
-                          <div className="z-10 flex items-center gap-2 ml-1 mt-1">
-                            <div className="bg-slate-200/10 h-10 w-10 mask mask-hexagon-2">
-                              {pool?.metadata && (
-                                <img
-                                  src={pool?.metadata?.image}
-                                  alt="Pool Image"
-                                  className="h-10 w-10 mask mask-hexagon-2"
-                                />
-                              )}
+                            key={i}
+                            className="carousel-item w-60 h-40 rounded-lg shadow-md m-2 flex flex-col items-start justify-between relative overflow-hidden"
+                            style={{
+                              backgroundImage: pool?.metadata?.banner_image
+                                ? `url(${pool.metadata.banner_image})`
+                                : undefined,
+                              backgroundPosition: "center",
+                              backgroundSize: "cover",
+                              backgroundRepeat: "no-repeat"
+                            }}>
+                            <div
+                              className="absolute inset-0 bg-black/50"
+                              aria-hidden="true"></div>
+                            <a
+                              href={`http://localhost:3000/pool?id=${pool.id}`}
+                              target="_blank"
+                              className="absolute right-0 bottom-0 bg-slate-700/30 text-xs text-slate-200 rounded-tl-lg p-2 hover:bg-slate-700/60 hover:cursor-pointer">
+                              add rewards
+                            </a>
+                            <div className="z-10 flex items-center gap-2 ml-1 mt-1">
+                              <div className="bg-slate-200/10 h-10 w-10 mask mask-hexagon-2">
+                                {pool?.metadata && (
+                                  <img
+                                    src={pool?.metadata?.image}
+                                    alt="Pool Image"
+                                    className="h-10 w-10 mask mask-hexagon-2"
+                                  />
+                                )}
+                              </div>
+                              <div className="text-xs text-slate-200">
+                                {pool?.metadata?.name ?? "NO NAME"}
+                              </div>
                             </div>
-                            <div className="text-xs text-slate-200">
-                              {pool?.metadata?.name ?? "NO NAME"}
+                            <div className="z-10">
+                              <div className="text-xs text-slate-200 pl-2 pb-2">
+                                <span className="text-slate-400 mr-2">
+                                  Rewards:
+                                </span>
+                                {pool.totalRewards
+                                  ? pool.totalRewards.toString()
+                                  : `0`}
+                              </div>
                             </div>
                           </div>
-                          <div className="z-10">
-                            <div className="text-xs text-slate-200 pl-2 pb-2">
-                              <span className="text-slate-400 mr-2">
-                                Rewards:
-                              </span>
-                              {pool.totalRewards
-                                ? pool.totalRewards.toString()
-                                : `0`}
-                            </div>
-                          </div>
+                        ))
+                      ) : (
+                        <div className="flex flex-col justify-center items-center w-full text-slate-500">
+                          <svg
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            className="w-24 h-24">
+                            <path
+                              fill="currentColor"
+                              fillRule="evenodd"
+                              d="M18 6H5a3 3 0 00-3 3v6a3 3 0 003 3h13a3 3 0 003-3 1 1 0 001-1v-4a1 1 0 00-1-1 3 3 0 00-3-3zm0 2H5a1 1 0 00-1 1v6a1 1 0 001 1h13a1 1 0 001-1V9a1 1 0 00-1-1z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                          <div>No Pools</div>
                         </div>
                       ))}
                   </div>
