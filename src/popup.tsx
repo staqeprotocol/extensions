@@ -1,6 +1,6 @@
 import logo from "data-base64:assets/logo.svg"
 import { useEffect, useState } from "react"
-import { localhost, scrollSepolia } from "src/chains"
+import { bitTorrent, bscTestnet, localhost, scrollSepolia } from "src/chains"
 import { createPublicClient, getAddress, getContract, http } from "viem"
 
 import "~style.css"
@@ -14,7 +14,9 @@ const transport = http()
 const batch = { multicall: true }
 const addresses = {
   1337: "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",
-  534351: "0x9cbD0A9D9fb8e8c1baA4687E4e8068aDA57a220f"
+  534351: "0x9cbD0A9D9fb8e8c1baA4687E4e8068aDA57a220f",
+  1029: "0x9cbD0A9D9fb8e8c1baA4687E4e8068aDA57a220f",
+  97: "0x9cbD0A9D9fb8e8c1baA4687E4e8068aDA57a220f"
 }
 const publicClient = createPublicClient({ chain: localhost, batch, transport })
 
@@ -48,9 +50,7 @@ async function fetchMetadata(uri: string) {
 }
 
 function IndexPopup() {
-  const [account, setAccount] = useState<`0x${string}`>(
-    "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
-  )
+  const [account, setAccount] = useState<`0x${string}`>()
   const [tempAccount, setTempAccount] = useState<`0x${string}`>()
 
   const [totalPools, setTotalPools] = useState<bigint>()
@@ -115,8 +115,6 @@ function IndexPopup() {
             args: [account, poolId]
           })
         }
-
-        console.log("address2", address, totalPools, contracts)
 
         const poolList: { result: IPool }[] = await client.multicall({
           contracts
@@ -228,6 +226,14 @@ function IndexPopup() {
                       <a onClick={() => handleDropdownChain(scrollSepolia)}>
                         Scroll
                       </a>
+                    </li>
+                    <li>
+                      <a onClick={() => handleDropdownChain(bitTorrent)}>
+                        BitTorrent
+                      </a>
+                    </li>
+                    <li>
+                      <a onClick={() => handleDropdownChain(bscTestnet)}>BSC</a>
                     </li>
                   </ul>
                 </div>
