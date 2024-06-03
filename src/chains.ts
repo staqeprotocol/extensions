@@ -1,5 +1,11 @@
 import { defineChain } from "viem"
-import { bscTestnet, localhost as l, scrollSepolia } from "viem/chains"
+import {
+  avalancheFuji,
+  bscTestnet,
+  localhost as l,
+  polygonAmoy,
+  scrollSepolia
+} from "viem/chains"
 
 const localhost = {
   ...l,
@@ -27,4 +33,11 @@ const bitTorrent = defineChain({
   }
 })
 
-export { bitTorrent, bscTestnet, localhost, scrollSepolia }
+export {
+  avalancheFuji,
+  bitTorrent,
+  bscTestnet,
+  localhost,
+  polygonAmoy,
+  scrollSepolia
+}

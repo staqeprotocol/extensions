@@ -1,6 +1,13 @@
 import logo from "data-base64:assets/logo.svg"
 import { useEffect, useState } from "react"
-import { bitTorrent, bscTestnet, localhost, scrollSepolia } from "src/chains"
+import {
+  avalancheFuji,
+  bitTorrent,
+  bscTestnet,
+  localhost,
+  polygonAmoy,
+  scrollSepolia
+} from "src/chains"
 import { createPublicClient, getAddress, getContract, http } from "viem"
 
 import "~style.css"
@@ -16,7 +23,8 @@ const addresses = {
   1337: "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",
   534351: "0x9cbD0A9D9fb8e8c1baA4687E4e8068aDA57a220f",
   1029: "0x9cbD0A9D9fb8e8c1baA4687E4e8068aDA57a220f",
-  97: "0x9cbD0A9D9fb8e8c1baA4687E4e8068aDA57a220f"
+  97: "0x9cbD0A9D9fb8e8c1baA4687E4e8068aDA57a220f",
+  80002: "0x446565A7fE06Fb89f9d6Fe855F8210dbcDe88Ee7"
 }
 const publicClient = createPublicClient({ chain: localhost, batch, transport })
 
@@ -234,6 +242,16 @@ function IndexPopup() {
                     </li>
                     <li>
                       <a onClick={() => handleDropdownChain(bscTestnet)}>BSC</a>
+                    </li>
+                    <li>
+                      <a onClick={() => handleDropdownChain(polygonAmoy)}>
+                        Polygon
+                      </a>
+                    </li>
+                    <li>
+                      <a onClick={() => handleDropdownChain(avalancheFuji)}>
+                        Avalanche
+                      </a>
                     </li>
                   </ul>
                 </div>
