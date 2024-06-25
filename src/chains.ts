@@ -2,6 +2,7 @@ import { defineChain } from "viem"
 import {
   avalancheFuji,
   bscTestnet,
+  bitTorrent as btt,
   localhost as l,
   polygonAmoy,
   scrollSepolia
@@ -16,10 +17,10 @@ const localhost = {
   }
 }
 
-const bitTorrent = defineChain({
+const bitTorrentDonau = defineChain({
   id: 1029,
   name: "BitTorrent Chain Donau",
-  nativeCurrency: { name: "BitTorrent", symbol: "BTT", decimals: 18 },
+  nativeCurrency: { name: "BitTorrent", symbol: "tBTT", decimals: 18 },
   rpcUrls: {
     default: { http: ["https://pre-rpc.bittorrentchain.io/"] }
   },
@@ -33,9 +34,19 @@ const bitTorrent = defineChain({
   }
 })
 
+const bitTorrent = defineChain({
+  ...btt,
+  contracts: {
+    multicall3: {
+      address: "0xcA11bde05977b3631167028862bE2a173976CA11"
+    }
+  }
+})
+
 export {
   avalancheFuji,
   bitTorrent,
+  bitTorrentDonau,
   bscTestnet,
   localhost,
   polygonAmoy,

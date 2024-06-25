@@ -1,8 +1,12 @@
 import logo from "data-base64:assets/logo.svg"
 import { useEffect, useState } from "react"
 import {
-  avalancheFuji,
+  MdOutlineCheckBox,
+  MdOutlineCheckBoxOutlineBlank
+} from "react-icons/md"
+import {
   bitTorrent,
+  bitTorrentDonau,
   bscTestnet,
   localhost,
   polygonAmoy,
@@ -20,11 +24,12 @@ export const GATEWAY_URL = "https://ipfs.io/ipfs/"
 const transport = http()
 const batch = { multicall: true }
 const addresses = {
-  1337: "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",
-  534351: "0x9cbD0A9D9fb8e8c1baA4687E4e8068aDA57a220f",
-  1029: "0x9cbD0A9D9fb8e8c1baA4687E4e8068aDA57a220f",
-  97: "0x9cbD0A9D9fb8e8c1baA4687E4e8068aDA57a220f",
-  80002: "0x446565A7fE06Fb89f9d6Fe855F8210dbcDe88Ee7"
+  1337: [localhost, "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82"],
+  534351: [scrollSepolia, "0x9cbD0A9D9fb8e8c1baA4687E4e8068aDA57a220f"],
+  1029: [bitTorrentDonau, "0x9cbD0A9D9fb8e8c1baA4687E4e8068aDA57a220f"],
+  97: [bscTestnet, "0x9cbD0A9D9fb8e8c1baA4687E4e8068aDA57a220f"],
+  80002: [polygonAmoy, "0x446565A7fE06Fb89f9d6Fe855F8210dbcDe88Ee7"],
+  199: [bitTorrent, "0x67980361970AAc40767187437326234c4Ac4d003"]
 }
 const publicClient = createPublicClient({ chain: localhost, batch, transport })
 
@@ -59,6 +64,7 @@ async function fetchMetadata(uri: string) {
 
 function IndexPopup() {
   const [account, setAccount] = useState<`0x${string}`>()
+  const [chainId, setChainId] = useState<any>(localhost.id)
   const [tempAccount, setTempAccount] = useState<`0x${string}`>()
 
   const [totalPools, setTotalPools] = useState<bigint>()
@@ -68,7 +74,7 @@ function IndexPopup() {
   const perPage = 100n
 
   const [tab, setTab] = useState(1)
-  const [address, setAddress] = useState<any>(addresses[localhost.id])
+  const [address, setAddress] = useState<any>(addresses[localhost.id][1])
   const [client, setClient] = useState<any>(publicClient)
   const [blockNumber, setBlockNumber] = useState("")
   const [dropdownOpen, setDropdownOpen] = useState(false)
@@ -88,7 +94,8 @@ function IndexPopup() {
 
     const client = createPublicClient({ chain, batch, transport })
     setClient(client)
-    setAddress(addresses[chain.id])
+    setAddress(addresses[chain.id][1])
+    setChainId(chain.id)
   }
 
   useEffect(() => {
@@ -105,6 +112,17 @@ function IndexPopup() {
     fetch()
     return () => unwatch()
   }, [account, client, address])
+
+  useEffect(() => {
+    setAccount(localStorage.getItem("account") as `0x${string}`)
+    setChainId(localStorage.getItem("chainId") as `0x${string}`)
+    handleDropdownChain(addresses[parseInt(localStorage.getItem("chainId"))][0])
+  }, [])
+
+  useEffect(() => {
+    localStorage.setItem("account", account)
+    localStorage.setItem("chainId", chainId)
+  }, [account, chainId])
 
   useEffect(() => {
     if (!totalPools || !page) return
@@ -197,7 +215,10 @@ function IndexPopup() {
                   src={logo}
                   alt="Staqe"
                   className="w-16 h-16"
-                  onClick={() => setAccount(undefined)}
+                  onClick={() => {
+                    setAccount(undefined)
+                    localStorage.removeItem("account")
+                  }}
                 />
               </div>
             </div>
@@ -220,39 +241,27 @@ function IndexPopup() {
                 <div
                   className={`dropdown dropdown-left ${dropdownOpen ? "dropdown-open" : ""}`}>
                   <div tabIndex={0} role="button" onClick={toggleDropdown}>
-                    Network
+                    {addresses[chainId][0].nativeCurrency.symbol}
                   </div>
                   <ul
                     tabIndex={0}
-                    className="dropdown-content z-[1] menu p-1 shadow bg-base-100 rounded-xl w-40">
-                    <li>
-                      <a onClick={() => handleDropdownChain(localhost)}>
-                        Localhost
-                      </a>
-                    </li>
-                    <li>
-                      <a onClick={() => handleDropdownChain(scrollSepolia)}>
-                        Scroll
-                      </a>
-                    </li>
-                    <li>
-                      <a onClick={() => handleDropdownChain(bitTorrent)}>
-                        BitTorrent
-                      </a>
-                    </li>
-                    <li>
-                      <a onClick={() => handleDropdownChain(bscTestnet)}>BSC</a>
-                    </li>
-                    <li>
-                      <a onClick={() => handleDropdownChain(polygonAmoy)}>
-                        Polygon
-                      </a>
-                    </li>
-                    <li>
-                      <a onClick={() => handleDropdownChain(avalancheFuji)}>
-                        Avalanche
-                      </a>
-                    </li>
+                    className="dropdown-content z-20 menu p-1 shadow bg-base-100 rounded-xl w-40">
+                    {addresses &&
+                      Object.values(addresses).map(([chain, addr]: any) => {
+                        if (!addr) return
+                        return (
+                          <li key={chain?.id.toString()}>
+                            <a onClick={() => handleDropdownChain(chain)}>
+                              {chain?.id === chainId ? (
+                                <MdOutlineCheckBox />
+                              ) : (
+                                <MdOutlineCheckBoxOutlineBlank />
+                              )}{" "}
+                              {chain?.name}
+                            </a>
+                          </li>
+                        )
+                      })}
                   </ul>
                 </div>
               </li>
@@ -341,7 +350,7 @@ function IndexPopup() {
                                 </span>
                                 {pool.totalRewards
                                   ? pool.totalRewards.toString()
-                                  : ``}
+                                  : `0`}
                               </div>
                             </div>
                           </div>
@@ -435,7 +444,8 @@ function IndexPopup() {
         </div>
         <div className="w-full">
           <div className="flex justify-between items-centertext-xs text-gray-400">
-            <div>Staqe Extensions v0.0.1</div>
+            <div>Staqe v0.0.2</div>
+            <div>{tempAccount && tempAccount.slice(0, 5) + `...`}</div>
             {blockNumber ? (
               <div className="flex justify-center items-center">
                 <span className="w-2 h-2 bg-green-500 rounded-full mx-2"></span>
