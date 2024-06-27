@@ -114,9 +114,15 @@ function IndexPopup() {
   }, [account, client, address])
 
   useEffect(() => {
-    setAccount(localStorage.getItem("account") as `0x${string}`)
-    setChainId(localStorage.getItem("chainId") as `0x${string}`)
-    handleDropdownChain(addresses[parseInt(localStorage.getItem("chainId"))][0])
+    if (localStorage.getItem("account")) {
+      setAccount(localStorage.getItem("account") as `0x${string}`)
+    }
+    if (localStorage.getItem("chainId")) {
+      setChainId(localStorage.getItem("chainId") as `0x${string}`)
+      handleDropdownChain(
+        addresses[parseInt(localStorage.getItem("chainId"))][0]
+      )
+    }
   }, [])
 
   useEffect(() => {
@@ -205,7 +211,7 @@ function IndexPopup() {
   }, [totalPools, page, account, client, address])
 
   return (
-    <div className="w-80 h-96 p-2 bg-slate-50">
+    <div className="w-80 h-96 p-2 bg-slate-50 dark:bg-slate-800">
       <div className="flex flex-col h-full justify-between">
         <div className="w-full">
           <div className="flex justify-center items-center">
@@ -222,7 +228,7 @@ function IndexPopup() {
                 />
               </div>
             </div>
-            <ul className="flex justify-between items-stretch gap-1 menu menu-horizontal bg-slate-200 rounded-box text-xs">
+            <ul className="flex justify-between items-stretch gap-1 menu menu-horizontal bg-slate-200 dark:bg-slate-900 rounded-box text-xs">
               <li>
                 <a
                   className={`${tab === 1 ? `active` : ``}`}
@@ -245,7 +251,7 @@ function IndexPopup() {
                   </div>
                   <ul
                     tabIndex={0}
-                    className="dropdown-content z-20 menu p-1 shadow bg-base-100 rounded-xl w-40">
+                    className="dropdown-content z-20 menu p-1 shadow bg-slate-100 dark:bg-slate-950 rounded-xl w-40">
                     {addresses &&
                       Object.values(addresses).map(([chain, addr]: any) => {
                         if (!addr) return
@@ -272,7 +278,9 @@ function IndexPopup() {
           {!account && (
             <div className="flex justify-center items-center mx-2">
               <div>
-                <div className="text-xs text-slate-500">Account address:</div>
+                <div className="text-xs text-slate-500 dark:text-slate-700">
+                  Account address:
+                </div>
                 <label className="input input-bordered flex items-center gap-2">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -302,7 +310,7 @@ function IndexPopup() {
             </div>
           )}
           {account && (
-            <div className="carousel carousel-center bg-slate-200 rounded-box w-full p-4">
+            <div className="carousel carousel-center bg-slate-200 dark:bg-slate-700 rounded-box w-full p-4">
               <div className="w-full">
                 <div className="flex justify-center items-center">
                   <div className="carousel carousel-center rounded-box w-full p-0">
