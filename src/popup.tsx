@@ -335,7 +335,7 @@ function IndexPopup() {
                               className="absolute inset-0 bg-black/50"
                               aria-hidden="true"></div>
                             <a
-                              href={`http://localhost:3000/pool?id=${pool.id}`}
+                              href={`https://staqe.app/pool?id=${pool.id}&chain=${chainId}`}
                               target="_blank"
                               className="absolute right-0 bottom-0 bg-slate-700/30 text-xs text-slate-200 rounded-tl-lg p-2 hover:bg-slate-700/60 hover:cursor-pointer">
                               claim rewards
@@ -400,7 +400,7 @@ function IndexPopup() {
                               className="absolute inset-0 bg-black/50"
                               aria-hidden="true"></div>
                             <a
-                              href={`http://localhost:3000/pool?id=${pool.id}`}
+                              href={`https://staqe.app/pool?id=${pool.id}&chain=${chainId}`}
                               target="_blank"
                               className="absolute right-0 bottom-0 bg-slate-700/30 text-xs text-slate-200 rounded-tl-lg p-2 hover:bg-slate-700/60 hover:cursor-pointer">
                               add rewards

@@ -5,8 +5,7 @@ import {
   bitTorrent as btt,
   localhost as l,
   polygonAmoy,
-  scrollSepolia,
-  taikoHekla
+  scrollSepolia
 } from "viem/chains"
 
 const localhost = {
@@ -42,6 +41,29 @@ const bitTorrent = defineChain({
       address: "0xcA11bde05977b3631167028862bE2a173976CA11"
     }
   }
+})
+
+const taikoHekla = /*#__PURE__*/ defineChain({
+  id: 167_009,
+  name: "Taiko Hekla L2",
+  nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+  rpcUrls: {
+    default: {
+      http: ["https://rpc.hekla.taiko.xyz"]
+    }
+  },
+  blockExplorers: {
+    default: {
+      name: "Taikoscan",
+      url: "https://hekla.taikoscan.network"
+    }
+  },
+  contracts: {
+    multicall3: {
+      address: "0xcA11bde05977b3631167028862bE2a173976CA11"
+    }
+  },
+  testnet: true
 })
 
 export {
