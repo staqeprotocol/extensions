@@ -10,7 +10,8 @@ import {
   bscTestnet,
   localhost,
   polygonAmoy,
-  scrollSepolia
+  scrollSepolia,
+  taikoHekla
 } from "src/chains"
 import { createPublicClient, getAddress, getContract, http } from "viem"
 
@@ -29,7 +30,8 @@ const addresses = {
   1029: [bitTorrentDonau, "0x9cbD0A9D9fb8e8c1baA4687E4e8068aDA57a220f"],
   97: [bscTestnet, "0x9cbD0A9D9fb8e8c1baA4687E4e8068aDA57a220f"],
   80002: [polygonAmoy, "0x446565A7fE06Fb89f9d6Fe855F8210dbcDe88Ee7"],
-  199: [bitTorrent, "0x67980361970AAc40767187437326234c4Ac4d003"]
+  199: [bitTorrent, "0x67980361970AAc40767187437326234c4Ac4d003"],
+  167009: [taikoHekla, "0xc9b0a1C9AafdF4128549cC80B682832dE5a133a9"]
 }
 const publicClient = createPublicClient({ chain: localhost, batch, transport })
 
@@ -247,6 +249,7 @@ function IndexPopup() {
                 <div
                   className={`dropdown dropdown-left ${dropdownOpen ? "dropdown-open" : ""}`}>
                   <div tabIndex={0} role="button" onClick={toggleDropdown}>
+                    {addresses[chainId][0].testnet ? `t` : ``}
                     {addresses[chainId][0].nativeCurrency.symbol}
                   </div>
                   <ul

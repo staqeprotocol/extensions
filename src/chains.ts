@@ -5,7 +5,8 @@ import {
   bitTorrent as btt,
   localhost as l,
   polygonAmoy,
-  scrollSepolia
+  scrollSepolia,
+  taikoHekla
 } from "viem/chains"
 
 const localhost = {
@@ -50,5 +51,6 @@ export {
   bscTestnet,
   localhost,
   polygonAmoy,
-  scrollSepolia
+  scrollSepolia,
+  taikoHekla
 }
